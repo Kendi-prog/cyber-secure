@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import { useEffect, lazy, Suspense } from "react";
+import { useDispatch } from "react-redux";
 
-function App() {
-  const [count, setCount] = useState(0)
+import { checkUserSession } from "../../src/store/user/user.action";
+import Spinner from "../../src/components/spinner/spinner.component";
+import { GlobalStyle } from "./global.styles";
+
+
+const Navigation = lazy(() => import("../../src/routes/navigation/navigation.component"));
+const Checkout = lazy(() => import("../../src/routes/checkout/checkout.component"));
+const Shop = lazy(() => import('../../src/routes/shop/shop.component'));
+const Home = lazy(() => import("../../src/routes/home/home.component"));
+const Authentication = lazy(() => import("../../src/routes/authentication/authentication"));
+
+
+
+const App = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+   dispatch(checkUserSession());
+
+  }, [dispatch]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Suspense fallback={<Spinner/>}>
+      <GlobalStyle />
+      <Routes>
+        <Route path="/" element={ <Navigation />}>
+          <Route index element={ <Home />} />
+          <Route path="shop/*" element={ <Shop />} />
+          <Route path="auth" element={ <Authentication />} />
+          <Route path="checkout" element={ <Checkout />} />
+        </Route>
+      </Routes>
+    </Suspense>
+   
+  );
 }
 
-export default App
+export default App;
